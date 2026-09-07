@@ -1,0 +1,292 @@
+.kl-card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  min-height: 720px;
+  border-radius: 32px;
+  overflow: hidden;
+  background-color: #7a3f3d;
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    0 30px 60px -15px rgba(60, 20, 20, 0.45),
+    0 0 0 10px rgba(255, 255, 255, 0.6);
+  isolation: isolate;
+}
+
+@media (max-width: 480px) {
+  .kl-card {
+    max-width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* Botanical illustrations, anchored to two opposite corners */
+.kl-illustration {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.kl-illustration--top {
+  width: 42%;
+  max-width: 175px;
+  top: 0;
+  right: 0;
+}
+
+.kl-illustration--bottom {
+  width: 34%;
+  max-width: 145px;
+  bottom: 0;
+  left: 0;
+}
+
+.kl-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 720px;
+  padding: 34px 28px 28px;
+}
+
+@media (max-width: 480px) {
+  .kl-content {
+    min-height: 100vh;
+  }
+}
+
+.kl-brand {
+  margin-top: 92px;
+  margin-bottom: 28px;
+}
+
+.kl-logo {
+  display: block;
+  width: min(72%, 260px);
+  height: auto;
+}
+
+.kl-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.kl-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.kl-label {
+  color: rgba(255, 249, 244, 0.92);
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.kl-input {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(255, 249, 244, 0.65);
+  color: #fffaf5;
+  font-size: 15px;
+  font-family: inherit;
+  padding: 2px 2px 8px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.kl-input::placeholder {
+  color: rgba(255, 249, 244, 0.5);
+}
+
+.kl-input:focus {
+  border-bottom-color: #f2b6a3;
+}
+
+.kl-password-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kl-input--password {
+  padding-right: 30px;
+}
+
+.kl-eye-btn {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  background: none;
+  border: none;
+  padding: 2px;
+  color: rgba(255, 249, 244, 0.85);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.kl-eye-btn:hover {
+  color: #fff;
+}
+
+.kl-error {
+  color: #ffd6cf;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.kl-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: -4px;
+}
+
+.kl-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 249, 244, 0.92);
+  font-size: 13.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.kl-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.kl-checkbox-box {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(255, 249, 244, 0.75);
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.kl-checkbox input:checked + .kl-checkbox-box {
+  background: #f2b6a3;
+  border-color: #f2b6a3;
+}
+
+.kl-checkbox input:checked + .kl-checkbox-box::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid #5c2a26;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.kl-checkbox input:focus-visible + .kl-checkbox-box {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.kl-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.kl-forgot {
+  color: rgba(255, 249, 244, 0.92);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.kl-forgot:hover {
+  text-decoration: underline;
+}
+
+.kl-submit {
+  margin-top: 6px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 20px;
+  background: #dcceb8;
+  color: #4a3323;
+  font-size: 15.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.kl-submit:hover {
+  background: #e6dac8;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.kl-submit:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.kl-notice {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  background: rgba(255, 249, 244, 0.14);
+  color: #fffaf5;
+  border: 1px solid rgba(255, 249, 244, 0.3);
+}
+
+.kl-notice--success {
+  background: rgba(120, 200, 150, 0.2);
+  border-color: rgba(120, 200, 150, 0.45);
+}
+
+.kl-spacer {
+  flex: 1;
+  min-height: 24px;
+}
+
+.kl-signup-row {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: rgba(255, 249, 244, 0.92);
+  font-size: 13.5px;
+  margin: 0 0 8px;
+}
+
+.kl-signup {
+  background: linear-gradient(90deg, #e8607e, #f2a98f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline;
+}
+
+.kl-signup:hover {
+  text-decoration: underline;
+  text-decoration-color: #f2a98f;
+}

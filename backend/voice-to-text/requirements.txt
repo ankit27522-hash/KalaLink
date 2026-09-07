@@ -1,0 +1,17 @@
+# --- Web API ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9      # required by FastAPI for UploadFile/Form parsing
+python-dotenv==1.0.1
+
+# --- Speech-to-text ---
+# faster-whisper bundles its own audio decoding (PyAV) and pulls in
+# ctranslate2 + a CPU/GPU-capable CTranslate2 build automatically.
+# First run downloads model weights from Hugging Face Hub and caches them.
+faster-whisper==1.0.3
+
+# Note: the original prototype also listed openai-whisper, sounddevice,
+# scipy, and imageio-ffmpeg. Those were only used by the local mic-testing
+# script (test_mic.py) and the openai-whisper fallback that the app never
+# actually used (it imports faster_whisper directly) - dropped here since
+# they're not needed to run the API.

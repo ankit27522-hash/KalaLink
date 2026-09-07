@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+# faster-whisper's local model cache, if it gets pointed here
+models_cache/

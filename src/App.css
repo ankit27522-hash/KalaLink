@@ -1,0 +1,16 @@
+.app-root {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: radial-gradient(circle at 50% 0%, #f5f2ec 0%, #e8e3d9 100%);
+}
+
+@media (max-width: 480px) {
+  .app-root {
+    padding: 0;
+    background: #7a3f3d;
+  }
+}

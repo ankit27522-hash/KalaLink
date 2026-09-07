@@ -1,0 +1,19 @@
+# --- Web API (always required) ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9      # required by FastAPI for UploadFile/Form parsing
+python-dotenv==1.0.1
+
+# --- Image processing (always required, classical enhancement path) ---
+opencv-python-headless==4.10.0.84   # headless: no GUI libs needed on a server
+numpy==1.26.4
+pillow==10.4.0
+
+# --- Real-ESRGAN backend (optional, Phase 2+) ---
+# Installing these pulls in PyTorch (~500MB-1GB). If you skip them, the
+# service automatically falls back to the classical OpenCV pipeline, so
+# the API still works end-to-end without them. Uncomment to enable:
+# torch==2.4.1
+# torchvision==0.19.1
+# basicsr==1.4.2
+# realesrgan==0.3.0
