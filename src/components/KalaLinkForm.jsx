@@ -8,8 +8,8 @@ import { parseNumericValue } from "../utils/parseNumeric.js";
 // KalaLink — product listing form
 // ----------------------------------------------------------------------------
 // - Photo upload with preview
-// - A separate input field for each piece of data: time taken, material
-//   cost, expected price, quantity. Each field has its own mic button —
+// - A separate input field for each piece of data: material cost, expected
+//   price, quantity. Each field has its own mic button —
 //   tap it to record, tap again to stop; the clip is sent to the backend
 //   voice-to-text service (backend/voice-to-text) and the transcribed text
 //   fills that field.
@@ -17,14 +17,13 @@ import { parseNumericValue } from "../utils/parseNumeric.js";
 //   (backend/image-enhancement). If the result isn't good enough, "Retry"
 //   re-sends the same image with an escalated attempt number, which the
 //   agent uses to apply a stronger enhancement strategy.
-// - Once enhancement succeeds, the ENHANCED image + the four field values
+// - Once enhancement succeeds, the ENHANCED image + the field values
 //   are sent to backend/product_generation, which returns a title,
 //   description, tags, and price estimate. This only runs after a
 //   successful enhancement — it never sees the original image or raw audio.
 // ============================================================================
 
 const FIELDS = [
-  { key: "timeTaken", label: "Time taken to build", placeholder: "e.g. 3 days" },
   { key: "materialCost", label: "Raw material cost", placeholder: "e.g. ₹400" },
   { key: "estimatedPrice", label: "Expected price", placeholder: "e.g. ₹1200" },
   { key: "quantity", label: "Quantity available", placeholder: "e.g. 5" },
@@ -34,7 +33,6 @@ export default function KalaLinkForm() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [values, setValues] = useState({
-    timeTaken: "",
     materialCost: "",
     estimatedPrice: "",
     quantity: "",
@@ -120,10 +118,6 @@ export default function KalaLinkForm() {
       setListingError('Could not read a number from "Quantity available" — please check that field.');
       return;
     }
-    if (!values.timeTaken.trim()) {
-      setListingError('"Time taken to build" is required to generate a listing.');
-      return;
-    }
 
     setListingLoading(true);
     setListingError("");
@@ -131,7 +125,6 @@ export default function KalaLinkForm() {
       const data = await generateProductListing({
         image: enhancedImage,
         materialCost: materialCostNum,
-        timeTaken: values.timeTaken,
         quantity: quantityNum,
         referencePrice: referencePriceNum, // null is fine — backend treats it as "not provided"
       });
@@ -283,7 +276,6 @@ export default function KalaLinkForm() {
             </details>
           )}
 
-          <p><strong>Time taken:</strong> {values.timeTaken}</p>
           <p><strong>Material cost:</strong> {values.materialCost}</p>
           <p><strong>Estimated price:</strong> {values.estimatedPrice}</p>
           <p><strong>Quantity:</strong> {values.quantity}</p>

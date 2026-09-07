@@ -42,7 +42,7 @@ app.get('/api/health', (req, res) => {
 
 app.post('/api/generate-listing', async (req, res) => {
   try {
-    const { image, materialCost, timeTaken, quantity, referencePrice } = req.body;
+    const { image, materialCost, quantity, referencePrice } = req.body;
 
     // --- Validation ---------------------------------------------------
     if (!image || typeof image !== 'string' || !image.startsWith('data:image')) {
@@ -54,9 +54,6 @@ app.post('/api/generate-listing', async (req, res) => {
     }
     if (materialCost === undefined || materialCost === null || isNaN(materialCost)) {
       return res.status(400).json({ error: 'Raw material cost is required and must be a number.' });
-    }
-    if (!timeTaken || !String(timeTaken).trim()) {
-      return res.status(400).json({ error: 'Time taken to make is required.' });
     }
     if (quantity === undefined || quantity === null || isNaN(quantity)) {
       return res.status(400).json({ error: 'Quantity available is required and must be a number.' });
@@ -75,7 +72,6 @@ app.post('/api/generate-listing', async (req, res) => {
     try {
       priceResult = estimatePrice({
         materialCost: Number(materialCost),
-        timeTaken,
         quantity: Number(quantity),
         referencePrice:
           referencePrice !== undefined && referencePrice !== null && referencePrice !== ''
@@ -83,7 +79,6 @@ app.post('/api/generate-listing', async (req, res) => {
             : null,
       });
     } catch (err) {
-      // e.g. unparseable timeTaken like "a while"
       return res.status(400).json({ error: err.message });
     }
 
@@ -93,7 +88,6 @@ app.post('/api/generate-listing', async (req, res) => {
       listingCopy = await generateListingCopy({
         image,
         materialCost: Number(materialCost),
-        timeTaken,
         quantity: Number(quantity),
         referencePrice:
           referencePrice !== undefined && referencePrice !== null && referencePrice !== ''

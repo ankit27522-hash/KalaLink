@@ -42,16 +42,14 @@ const SYSTEM_PROMPT =
  * @param {Object} params
  * @param {string} params.image - base64 data URL (image/png or image/jpeg)
  * @param {number} params.materialCost
- * @param {string|number} params.timeTaken
  * @param {number} params.quantity
  * @param {number|null} [params.referencePrice]
  * @returns {Promise<{ title: string, description: string, tags: string[] }>}
  * @throws {Error} on network/API failure, or if the model's response isn't valid JSON
  */
-export async function generateListingCopy({ image, materialCost, timeTaken, quantity, referencePrice }) {
+export async function generateListingCopy({ image, materialCost, quantity, referencePrice }) {
   const pricingContext = [
     `Raw material cost: ${materialCost}`,
-    `Time taken to make: ${timeTaken}`,
     `Quantity available: ${quantity}`,
     referencePrice !== undefined && referencePrice !== null
       ? `Reference price of similar items: ${referencePrice}`

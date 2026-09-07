@@ -14,7 +14,6 @@ const PRODUCT_API_BASE_URL = import.meta.env.VITE_PRODUCT_API_BASE_URL || 'http:
  * @param {Object} params
  * @param {string} params.image - enhanced image as a base64 data URL (from imageEnhancementService)
  * @param {number} params.materialCost
- * @param {string} params.timeTaken - free text, e.g. "3 days"
  * @param {number} params.quantity
  * @param {number|null} [params.referencePrice]
  * @returns {Promise<{
@@ -25,13 +24,13 @@ const PRODUCT_API_BASE_URL = import.meta.env.VITE_PRODUCT_API_BASE_URL || 'http:
  *   price_breakdown: object
  * }>}
  */
-export async function generateProductListing({ image, materialCost, timeTaken, quantity, referencePrice }) {
+export async function generateProductListing({ image, materialCost, quantity, referencePrice }) {
   let response
   try {
     response = await fetch(`${PRODUCT_API_BASE_URL}/api/generate-listing`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image, materialCost, timeTaken, quantity, referencePrice }),
+      body: JSON.stringify({ image, materialCost, quantity, referencePrice }),
     })
   } catch (networkErr) {
     throw new Error(
