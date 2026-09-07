@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { enhanceImage } from "../services/imageEnhancementService.js";
 import { generateProductListing } from "../services/productGenerationService.js";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder.js";
 import { parseNumericValue } from "../utils/parseNumeric.js";
+import { saveProduct } from "../utils/productsStorage.js";
 
 // ============================================================================
 // KalaLink — product listing form
@@ -29,7 +30,7 @@ const FIELDS = [
   { key: "quantity", label: "Quantity available", placeholder: "e.g. 5" },
 ];
 
-export default function KalaLinkForm() {
+export default function KalaLinkForm({ onNavChange }) {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [values, setValues] = useState({
@@ -45,6 +46,21 @@ export default function KalaLinkForm() {
   const [listingLoading, setListingLoading] = useState(false);
   const [listingError, setListingError] = useState("");
   const [listing, setListing] = useState(null); // { title, description, tags, price_estimation, price_breakdown }
+
+  // The backend's price estimate is a starting point — the user can edit it
+  // before saving. Re-seeded whenever a fresh listing comes back.
+  const [editablePrice, setEditablePrice] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  useEffect(() => {
+    if (listing) {
+      setEditablePrice(String(listing.price_estimation ?? ""));
+      setSaved(false);
+      setSaveError("");
+    }
+  }, [listing]);
 
   const { activeField, status: voiceStatus, toggleRecording } = useVoiceRecorder({
     onTranscribed: (key, text) => handleValueChange(key, text),
@@ -160,6 +176,61 @@ export default function KalaLinkForm() {
     document.body.removeChild(link);
   }
 
+  function formatPriceForDisplay(rawPrice) {
+    const trimmed = String(rawPrice ?? "").trim();
+    if (!trimmed) return "₹0";
+    return trimmed.startsWith("₹") ? trimmed : `₹${trimmed}`;
+  }
+
+  // localStorage has a small size cap, and the enhanced photo is stored as
+  // a base64 string — a few full-size photos can hit that cap fast. Shrink
+  // the photo down to a thumbnail-sized JPEG before it's saved, so many
+  // products can be stored without silently failing.
+  function compressImageDataUrl(dataUrl, maxDimension = 480, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => reject(new Error("Could not process the image for saving."));
+      img.src = dataUrl;
+    });
+  }
+
+  async function handleSaveProduct() {
+    if (!listing) return;
+    setSaving(true);
+    setSaveError("");
+    try {
+      const compressedImage = result?.image
+        ? await compressImageDataUrl(result.image)
+        : null;
+      saveProduct({
+        image: compressedImage,
+        title: listing.title,
+        description: listing.description,
+        tags: listing.tags || [],
+        price: formatPriceForDisplay(editablePrice),
+      });
+      setSaved(true);
+    } catch (err) {
+      setSaved(false);
+      setSaveError(err.message || "Something went wrong while saving this product.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleGoHome() {
+    onNavChange?.("home");
+  }
+
     return (
     <div style={styles.wrap}>
       <style>{`
@@ -168,7 +239,12 @@ export default function KalaLinkForm() {
           to { transform: rotate(360deg); }
         }
       `}</style>
-      <h2 style={styles.heading}>KalaLink</h2>
+      <div style={styles.topBar}>
+        <h2 style={styles.heading}>KalaLink</h2>
+        <button type="button" onClick={handleGoHome} style={styles.backLink}>
+          ← Home
+        </button>
+      </div>
 
       <label style={styles.label}>Photo</label>
       <input type="file" accept="image/*" onChange={handleImageChange} />
@@ -298,8 +374,18 @@ export default function KalaLinkForm() {
 
           {listing && (
             <div style={styles.listing}>
-              <div style={styles.priceBadge}>
-                Estimated price: {listing.price_estimation}
+              <label style={styles.label}>Estimated price (editable)</label>
+              <div style={styles.priceEditRow}>
+                <span style={styles.priceCurrency}>₹</span>
+                <input
+                  type="text"
+                  value={editablePrice}
+                  onChange={(e) => {
+                    setEditablePrice(e.target.value);
+                    setSaved(false);
+                  }}
+                  style={styles.priceInput}
+                />
               </div>
               <h3 style={styles.listingTitle}>{listing.title}</h3>
               <p style={styles.listingDescription}>{listing.description}</p>
@@ -316,6 +402,20 @@ export default function KalaLinkForm() {
               >
                 🔁 Regenerate listing
               </button>
+              <button
+                type="button"
+                onClick={handleSaveProduct}
+                disabled={listingLoading || saving}
+                style={styles.saveBtn}
+              >
+                {saving ? "Saving..." : saved ? "✔ Saved" : "Save Product"}
+              </button>
+              {saveError && <p style={styles.error}>{saveError}</p>}
+              {saved && (
+                <button type="button" onClick={handleGoHome} style={styles.goHomeBtn}>
+                  Go to Homepage
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -326,7 +426,16 @@ export default function KalaLinkForm() {
 
 const styles = {
   wrap: { maxWidth: 420, margin: "0 auto", padding: 20, fontFamily: "sans-serif" },
-  heading: { color: "#8f4230" },
+  topBar: { display: "flex", alignItems: "center", justifyContent: "space-between" },
+  heading: { color: "#8f4230", margin: 0 },
+  backLink: {
+    border: "none",
+    background: "none",
+    color: "#8f4230",
+    fontSize: 14,
+    cursor: "pointer",
+    padding: "6px 4px",
+  },
   label: { display: "block", marginTop: 16, marginBottom: 6, fontSize: 14, color: "#555" },
   preview: { width: "100%", borderRadius: 8, marginTop: 10, maxHeight: 260, objectFit: "cover" },
   inputRow: { display: "flex", gap: 8 },
@@ -388,6 +497,46 @@ const styles = {
     fontSize: 13,
     fontWeight: 600,
     marginBottom: 12,
+  },
+  priceEditRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 12,
+  },
+  priceCurrency: { fontSize: 16, fontWeight: 700, color: "#1e7a34" },
+  priceInput: {
+    padding: "8px 10px",
+    borderRadius: 6,
+    border: "1px solid #b7dcc2",
+    background: "#e6f4ea",
+    color: "#1e7a34",
+    fontSize: 16,
+    fontWeight: 700,
+    width: 140,
+  },
+  saveBtn: {
+    marginTop: 10,
+    width: "100%",
+    padding: 10,
+    borderRadius: 6,
+    border: "none",
+    background: "#1e7a34",
+    color: "white",
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+  goHomeBtn: {
+    marginTop: 8,
+    width: "100%",
+    padding: 10,
+    borderRadius: 6,
+    border: "1px solid #8f4230",
+    background: "white",
+    color: "#8f4230",
+    fontSize: 14,
+    cursor: "pointer",
   },
   listingTitle: { margin: "0 0 8px 0", color: "#333", fontSize: 17 },
   listingDescription: { color: "#555", fontSize: 14, lineHeight: 1.5, marginBottom: 12 },

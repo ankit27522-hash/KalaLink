@@ -5,16 +5,14 @@ import botanicalTop from '../assets/botanical-top.png'
 import botanicalBottom from '../assets/botanical-bottom.png'
 import bgTexture from '../assets/background-texture.jpg'
 import './LoginPage.css'
-import KalaLinkForm from './KalaLinkForm.jsx'
 
-export default function LoginPage() {
+export default function LoginPage({ onLoginSuccess }) {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [errors, setErrors] = useState({})
   const [notice, setNotice] = useState(null)
-  const [loggedIn, setLoggedIn] = useState(false)
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -23,9 +21,10 @@ export default function LoginPage() {
     if (!password) nextErrors.password = 'Enter your password'
     setErrors(nextErrors)
 
+    // No database/auth yet — any non-empty username + password logs in.
     if (Object.keys(nextErrors).length === 0) {
       setNotice({ type: 'success', text: `Welcome back${identifier ? ', ' + identifier : ''}!` })
-      setLoggedIn(true)
+      onLoginSuccess?.()
     }
   }
 
@@ -42,11 +41,6 @@ export default function LoginPage() {
   function handleSignUp(e) {
     e.preventDefault()
     setNotice({ type: 'info', text: 'Sign up is not available in this preview yet.' })
-  }
-
-  // Once logged in, show KalaLinkForm instead of the login card.
-  if (loggedIn) {
-    return <KalaLinkForm />
   }
 
   return (
